@@ -29,30 +29,24 @@
     </style>
 </head>
 <body>
-
     <h1>🎯 组合+和值预测</h1>
-
     <div class="card">
         <div class="status-bar">
             <span>📊 状态: <span id="dataStatus" class="live">✅ 已加载</span></span>
             <span>📋 期数: <span id="totalPeriods">--</span></span>
         </div>
     </div>
-
     <div class="card">
         <h3 style="margin-bottom:12px;">🔮 下一期预测 · 双组合</h3>
         <div id="predictionContainer"><div style="text-align:center;padding:20px 0;color:#999;">正在加载数据...</div></div>
         <button class="btn" id="refreshBtn">🔄 刷新预测</button>
         <div class="debug" id="debugLog">⏳ 等待启动...</div>
     </div>
-
     <div class="card">
         <h3 style="margin-bottom:12px;">📜 预测记录</h3>
         <div id="historyContainer"><div style="text-align:center;color:#999;padding:12px 0;">暂无记录</div></div>
     </div>
-
     <script>
-        // ===== 内置备用数据（30期） =====
         const BUILTIN_DATA = [
             { nbr: '3472300', number: '8+7+2', num: 17, combination: '大单' },
             { nbr: '3472299', number: '3+5+4', num: 12, combination: '小双' },
@@ -83,13 +77,11 @@
             { nbr: '3472274', number: '0+4+7', num: 11, combination: '小单' },
             { nbr: '3472273', number: '8+9+9', num: 26, combination: '大双' },
             { nbr: '3472272', number: '3+7+1', num: 11, combination: '小单' },
-            { nbr: '3472271', number: '6+4+8', num: 18, combination: '大双' },
+            { nbr: '3472271', number: '6+4+8', num: 18, combination: '大双' }
         ];
-
         const ALL_COMBOS = ['小双', '小单', '大双', '大单'];
         let lotteryData = [];
         let predictionRecords = [];
-        let usingFallback = true;
 
         function debugLog(msg) {
             const el = document.getElementById('debugLog');
@@ -141,11 +133,10 @@
         }
 
         function loadData() {
-            // 直接使用内置数据
             lotteryData = JSON.parse(JSON.stringify(BUILTIN_DATA));
             lotteryData.sort((a,b) => parseInt(a.nbr) - parseInt(b.nbr));
-            debugLog(`✅ 加载 ${lotteryData.length} 条数据，最新期: ${lotteryData[lotteryData.length-1]?.nbr}`);
-            document.getElementById('dataStatus').textContent = '✅ 已加载 (内置数据)';
+            debugLog(`✅ 加载 ${lotteryData.length} 条数据`);
+            document.getElementById('dataStatus').textContent = '✅ 已加载';
             document.getElementById('dataStatus').className = 'live';
             return true;
         }
@@ -165,14 +156,12 @@
                 const missText = item.miss > 0 ? `遗漏 ${item.miss} 期` : '近期热出';
                 const scorePct = (item.score * 100).toFixed(0);
                 const cls = idx === 0 ? 'predict-box primary' : 'predict-box';
-                return `
-                    <div class="${cls}">
-                        <div class="rank">${medal} ${label} · 得分 ${scorePct}%</div>
-                        <div class="combo-item">${item.combo}</div>
-                        <div><span class="sum-tag">和值 ${sums[0]}</span><span class="sum-tag">和值 ${sums[1]}</span></div>
-                        <div style="font-size:11px;color:#888;margin-top:4px;">出现 ${item.freq} 次 · ${missText}</div>
-                    </div>
-                `;
+                return `<div class="${cls}">
+                    <div class="rank">${medal} ${label} · 得分 ${scorePct}%</div>
+                    <div class="combo-item">${item.combo}</div>
+                    <div><span class="sum-tag">和值 ${sums[0]}</span><span class="sum-tag">和值 ${sums[1]}</span></div>
+                    <div style="font-size:11px;color:#888;margin-top:4px;">出现 ${item.freq} 次 · ${missText}</div>
+                </div>`;
             });
             container.innerHTML = `<div class="grid">${items.join('')}</div>`;
             updateHistory();
