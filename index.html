@@ -1,701 +1,221 @@
 <!DOCTYPE html>
-<超文本标记语言 语言=“zh-CN”>
-<头>
-    <自指的 字符集=“UTF八号”>
-    <自指的 名字="视窗" 内容=宽度=设备宽度，初始比例=1.0，最大比例=1.0，用户可缩放=否，视口大小=覆盖>
-    <标题>组合+和值预测 双组合版</标题>
-    <风格>
-        * { 边缘: 0; 填料: 0; 盒子尺寸: 边框; -WebKit-点击-高亮-颜色: 透明的; }
-        :根 {
-            -血糖-主要:# F0F2F8
-            -背景-表面:# FFFFFF
-            -文本-主要:# 1c 1c 1e；
-            -文本-次要: #636366;
-            -文本-高等教育:# 8E8E93
-            -口音:# 6 C5 ce 7；
-            -强调渐变: 线性梯度(135（同degree）度，#6C5CE7，#A29BFE);
-            -成功:# 00B894
-            危险:# FF7675
-            -边框: rgba(0, 0, 0, 0.06);
-            半径: 14像素;
-            半径lg: 20像素;
-            影子: 0 4像素 20像素 rgba(108, 92, 231, 0.10);
-        }
-        [数据主题=“黑暗”] {
-            -血糖-主要:# 0a 0a 0f；
-            -背景-表面: #181824;
-            -文本-主要:# EEEEF5
-            -文本-次要:# 98989D
-            -文本-高等教育: #636366;
-            -边框: rgba(255, 255, 255, 0.06);
-            影子: 0 4像素 20像素 rgba(0,0,0,0.4);
-        }
-        身体 {
-            背景: 定义变量(-血糖-主要);
-            字体系列: -苹果系统, ' SF Pro显示器', ' SF Pro四舍五入', 无衬线字体;
-            最小高度: 100vh;
-            padding: 16px 12px 30px;
-            color: var(--text-primary);
-        }
-        .container { max-width: 580px; margin: 0 auto; }
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 18px;
-            background: var(--bg-surface);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border);
-            margin-bottom: 14px;
-        }
-        .header-left { display: flex; align-items: center; gap: 10px; }
-        .header-icon {
-            width: 40px; height: 40px;
-            background: var(--accent-gradient);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            color: #fff;
-        }
-        .header-title h1 { font-size: 16px; font-weight: 800; color: var(--accent); }
-        .header-title p { font-size: 10px; color: var(--text-secondary); }
-        .theme-btn {
-            background: var(--bg-primary);
-            border: 1px solid var(--border);
-            width: 38px; height: 38px;
-            border-radius: 19px;
-            font-size: 17px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .theme-btn:active { transform: scale(0.92); }
-        .status-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-            gap: 6px;
-            margin-bottom: 14px;
-        }
-        .status-item {
-            background: var(--bg-surface);
-            border-radius: var(--radius);
-            padding: 10px 4px;
-            text-align: center;
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow);
-        }
-        .status-item .label { font-size: 8px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.2px; }
-        .status-item .value { font-size: 16px; font-weight: 800; margin-top: 2px; color: var(--accent); }
-        .status-item .value.hot { color: #E17055; }
-        .status-item .value.cold { color: var(--text-tertiary); }
-        .status-item .value.green { color: var(--success); }
-        .status-item .value.live { font-size: 11px; color: var(--success); }
-        .status-item .value.warn { color: var(--danger); font-size: 11px; }
-
-        .predict-card {
-            background: var(--bg-surface);
-            border-radius: var(--radius-lg);
-            padding: 18px 18px 16px;
-            margin-bottom: 14px;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border);
-        }
-        .predict-card .section-title {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin-bottom: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .predict-card .section-title .badge {
-            background: var(--accent);
-            color: #fff;
-            font-size: 9px;
-            padding: 2px 10px;
-            border-radius: 20px;
-            font-weight: 600;
-        }
-        .predict-card .section-title .status-dot {
-            display: inline-block;
-            width: 8px; height: 8px;
-            border-radius: 50%;
-            background: var(--success);
-            margin-right: 4px;
-            animation: pulse 1.5s infinite;
-        }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-        .predict-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .predict-item {
-            background: var(--bg-primary);
-            border-radius: var(--radius);
-            padding: 14px 14px 12px;
-            border-left: 4px solid var(--accent);
-        }
-        .predict-item.primary { border-left-color: #E17055; background: rgba(225, 112, 85, 0.06); }
-        .predict-item.secondary { border-left-color: #6C5CE7; }
-        .predict-item .rank { font-size: 11px; font-weight: 600; color: var(--text-tertiary); margin-bottom: 2px; }
-        .predict-item .rank .medal { font-size: 14px; margin-right: 4px; }
-        .predict-item .combo { font-size: 22px; font-weight: 800; color: var(--text-primary); letter-spacing: 0.5px; }
-        .predict-item .combo .highlight { color: var(--accent); }
-        .predict-item .sums { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
-        .predict-item .sum-tag {
-            background: rgba(108, 92, 231, 0.12);
-            padding: 2px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--accent);
-        }
-        .predict-item .reason {
-            font-size: 10px;
-            color: var(--text-tertiary);
-            margin-top: 6px;
-            padding-top: 6px;
-            border-top: 1px solid var(--border);
-        }
-        .predict-item .confidence {
-            display: inline-block;
-            font-size: 10px;
-            font-weight: 600;
-            padding: 1px 10px;
-            border-radius: 20px;
-            background: rgba(0, 184, 148, 0.12);
-            color: var(--success);
-            margin-top: 4px;
-        }
-        .predict-item .confidence.high { background: rgba(225, 112, 85, 0.15); color: #E17055; }
-        .predict-item .score-bar {
-            width: 100%; height: 3px;
-            background: rgba(0,0,0,0.06);
-            border-radius: 2px;
-            margin-top: 6px;
-            overflow: hidden;
-        }
-        .predict-item .score-bar .fill {
-            height: 100%;
-            border-radius: 2px;
-            background: var(--accent-gradient);
-            transition: width 0.4s;
-        }
-        .predict-item.primary .score-bar .fill { background: linear-gradient(90deg, #E17055, #FDCB6E); }
-
-        .btn-refresh {
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 60px;
-            background: var(--accent-gradient);
-            color: #fff;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.2s;
-            box-shadow: 0 4px 16px rgba(108, 92, 231, 0.30);
-            margin-top: 6px;
-        }
-        .btn-refresh:active { transform: scale(0.97); }
-
-        .stats-card {
-            background: var(--bg-surface);
-            border-radius: var(--radius-lg);
-            padding: 18px;
-            margin-bottom: 14px;
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow);
-        }
-        .stats-card .title { font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; }
-        .combo-chart { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-        .combo-bar {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 5px 10px;
-            background: var(--bg-primary);
-            border-radius: 8px;
-            border: 1px solid var(--border);
-        }
-        .combo-bar .name { font-size: 12px; font-weight: 600; min-width: 36px; }
-        .combo-bar .track { flex: 1; height: 6px; background: rgba(0,0,0,0.06); border-radius: 3px; overflow: hidden; }
-        .combo-bar .track .fill { height: 100%; border-radius: 3px; background: var(--accent-gradient); transition: width 0.6s ease; }
-        .combo-bar .count { font-size: 12px; font-weight: 700; color: var(--text-secondary); min-width: 18px; text-align: right; }
-
-        .history-wrap {
-            background: var(--bg-surface);
-            border-radius: var(--radius-lg);
-            padding: 14px;
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow);
-            overflow-x: auto;
-        }
-        .history-wrap .title {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 4px;
-        }
-        .history-wrap .title .acc { font-size: 12px; color: var(--accent); }
-        table { width: 100%; border-collapse: collapse; font-size: 11px; }
-        th { padding: 8px 4px; text-align: center; font-weight: 600; color: var(--text-tertiary); border-bottom: 1px solid var(--border); white-space: nowrap; }
-        td { padding: 6px 4px; text-align: center; border-bottom: 1px solid var(--border); }
-        .combo-tag {
-            display: inline-block;
-            padding: 1px 10px;
-            border-radius: 10px;
-            font-size: 10px;
-            font-weight: 700;
-        }
-        .combo-tag.小双 { background: rgba(0, 184, 148, 0.15); color: #00B894; }
-        .combo-tag.小单 { background: rgba(108, 92, 231, 0.15); color: #6C5CE7; }
-        .combo-tag.大双 { background: rgba(253, 203, 110, 0.25); color: #D68910; }
-        .combo-tag.大单 { background: rgba(255, 118, 117, 0.15); color: #FF7675; }
-        .result-correct { color: var(--success); font-weight: 700; }
-        .result-wrong { color: var(--danger); font-weight: 700; }
-        .result-pending { color: var(--text-tertiary); }
-        .footer { text-align: center; padding: 14px; font-size: 10px; color: var(--text-tertiary); }
-        .toast {
-            position: fixed;
-            bottom: 70px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.8);
-            color: #fff;
-            padding: 8px 20px;
-            border-radius: 30px;
-            font-size: 13px;
-            font-weight: 600;
-            opacity: 0;
-            transition: opacity 0.4s;
-            pointer-events: none;
-            z-index: 999;
-            backdrop-filter: blur(8px);
-        }
-        .toast.show { opacity: 1; }
-        .toast.success { background: rgba(0, 184, 148, 0.9); }
-        .toast.error { background: rgba(255, 118, 117, 0.9); }
-        .data-source-badge {
-            font-size: 9px;
-            padding: 2px 10px;
-            border-radius: 20px;
-            background: rgba(108, 92, 231, 0.12);
-            color: var(--text-tertiary);
-        }
-        .data-source-badge.online { background: rgba(0, 184, 148, 0.12); color: var(--success); }
-        .data-source-badge.local { background: rgba(255, 118, 117, 0.12); color: var(--danger); }
-        .api-config {
-            background: var(--bg-surface);
-            border-radius: var(--radius-lg);
-            padding: 12px 16px;
-            margin-bottom: 14px;
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow);
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .api-config input {
-            flex: 1;
-            min-width: 180px;
-            padding: 8px 12px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            font-size: 12px;
-            font-family: inherit;
-        }
-        .api-config input:focus { outline: none; border-color: var(--accent); }
-        .api-config .btn-set {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 8px;
-            background: var(--accent-gradient);
-            color: #fff;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .api-config .btn-set:active { transform: scale(0.95); }
-        .debug-log {
-            background: #1e1e2e;
-            color: #cdd6f4;
-            font-family: monospace;
-            font-size: 11px;
-            padding: 12px;
-            border-radius: var(--radius);
-            margin-top: 10px;
-            max-height: 150px;
-            overflow-y: auto;
-            white-space: pre-wrap;
-            word-break: break-all;
-        }
-        @media (max-width: 420px) {
-            .predict-grid { grid-template-columns: 1fr; gap: 8px; }
-            .status-row { grid-template-columns: 1fr 1fr 1fr; gap: 4px; }
-            .status-row .status-item:nth-child(4),
-            .status-row .status-item:nth-child(5) { display: none; }
-        }
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>组合+和值预测</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui; max-width: 600px; margin: 20px auto; padding: 0 16px; background: #f5f7fb; color: #1e293b; }
+        .card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        h1 { font-size: 22px; margin-bottom: 16px; }
+        .status-bar { display: flex; justify-content: space-between; flex-wrap: wrap; font-size: 14px; color: #666; }
+        .combo-item { font-size: 22px; font-weight: 700; padding: 6px 0; }
+        .sum-tag { background: #6C5CE7; color: white; padding: 2px 14px; border-radius: 20px; font-size: 14px; margin-right: 6px; display: inline-block; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .predict-box { background: #f0f4fe; border-radius: 12px; padding: 14px; border-left: 4px solid #6C5CE7; }
+        .predict-box.primary { border-left-color: #E17055; background: #fef0ed; }
+        .rank { font-size: 12px; color: #888; }
+        .btn { background: #6C5CE7; color: white; border: none; padding: 12px; border-radius: 30px; font-size: 16px; cursor: pointer; width: 100%; }
+        .btn:active { transform: scale(0.97); }
+        .debug { background: #1e1e2e; color: #cdd6f4; font-family: monospace; font-size: 11px; padding: 12px; border-radius: 12px; max-height: 120px; overflow-y: auto; white-space: pre-wrap; }
+        .history-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #eee; font-size: 13px; }
+        .badge { display: inline-block; padding: 2px 12px; border-radius: 20px; font-size: 12px; }
+        .badge.ok { background: #d3eddb; color: #0b5531; }
+        .badge.fail { background: #fce0df; color: #992e2b; }
+        .badge.wait { background: #f1f3f5; color: #666; }
+        .live { color: #00B894; }
+        .warn { color: #FF7675; }
     </style>
 </head>
 <body>
-<div class="container">
-    <div class="toast" id="toast"></div>
 
-    <div class="header">
-        <div class="header-left">
-            <div class="header-icon">🎯</div>
-            <div class="header-title">
-                <h1>组合 + 和值预测</h1>
-                <p>双组合推荐 · 自动对错追踪</p>
-            </div>
-        </div>
-        <button class="theme-btn" id="themeBtn">🌓</button>
-    </div>
+    <h1>🎯 组合+和值预测</h1>
 
-    <!-- 使用 corsproxy.io 作为代理 -->
-    <div class="api-config">
-        <span style="font-size:12px;color:var(--text-secondary);font-weight:600;">📡 API地址</span>
-        <input type="text" id="apiInput" value="https://corsproxy.io/?url=https://pc28.help/api/kj.json">
-        <button class="btn-set" id="setApiBtn">设置</button>
-        <span style="font-size:10px;color:var(--text-tertiary);" id="apiStatus">✅ 当前有效</span>
-    </div>
-
-    <div class="status-row">
-        <div class="status-item"><div class="label">📊 期数</div><div class="value" id="totalPeriods">--</div></div>
-        <div class="status-item"><div class="label">🔥 热组</div><div class="value hot" id="hotCombo">--</div></div>
-        <div class="status-item"><div class="label">❄️ 冷组</div><div class="value cold" id="coldCombo">--</div></div>
-        <div class="status-item"><div class="label">✅ 杀中</div><div class="value green" id="hitCount">--</div></div>
-        <div class="status-item"><div class="label">📡 状态</div><div class="value live" id="dataStatus">加载中</div></div>
-    </div>
-
-    <div class="predict-card">
-        <div class="section-title">
-            <span><span class="status-dot" id="liveDot"></span> 下一期预测 · 双组合</span>
-            <span class="badge" id="nextPeriodBadge">--</span>
-            <span class="data-source-badge" id="dataSourceBadge">📡 在线</span>
-            <span style="font-size:11px;color:var(--text-tertiary);font-weight:400;margin-left:auto;" id="updateTime"></span>
-        </div>
-        <div id="predictionContainer">
-            <div style="text-align:center;padding:24px 0;color:var(--text-tertiary);font-size:14px;">
-                <div style="font-size:36px;margin-bottom:8px;">📈</div>
-                正在获取最新开奖数据...
-            </div>
-        </div>
-        <button class="btn-refresh" id="refreshBtn">🔄 手动刷新</button>
-        <div class="debug-log" id="debugLog">⏳ 等待数据...</div>
-    </div>
-
-    <div class="stats-card">
-        <div class="title">📊 各组合出现频率</div>
-        <div class="combo-chart" id="comboChart">
-            <div class="combo-bar"><span class="name">小双</span><div class="track"><div class="fill" style="width:0%"></div></div><span class="count">0</span></div>
-            <div class="combo-bar"><span class="name">小单</span><div class="track"><div class="fill" style="width:0%"></div></div><span class="count">0</span></div>
-            <div class="combo-bar"><span class="name">大双</span><div class="track"><div class="fill" style="width:0%"></div></div><span class="count">0</span></div>
-            <div class="combo-bar"><span class="name">大单</span><div class="track"><div class="fill" style="width:0%"></div></div><span class="count">0</span></div>
+    <div class="card">
+        <div class="status-bar">
+            <span>📊 状态: <span id="dataStatus" class="live">加载中...</span></span>
+            <span>📋 期数: <span id="totalPeriods">--</span></span>
         </div>
     </div>
 
-    <div class="history-wrap">
-        <div class="title">
-            <span>📜 预测记录 · 双组合对错</span>
-            <span class="acc" id="accuracyDisplay">准确率: --</span>
-        </div>
-        <div class="table-wrapper">
-            <table>
-                <thead><tr><th>期号</th><th>首选</th><th>首选和值</th><th>次选</th><th>次选和值</th><th>实际开奖</th><th>实际和值</th><th>结果</th></tr></thead>
-                <tbody id="historyBody"><tr><td colspan="8" style="text-align:center;color:var(--text-tertiary);font-size:13px;padding:20px 0;">加载中...</td></tr></tbody>
-            </table>
-        </div>
+    <div class="card">
+        <h3 style="margin-bottom:12px;">🔮 下一期预测 · 双组合</h3>
+        <div id="predictionContainer"><div style="text-align:center;padding:20px 0;color:#999;">正在获取数据...</div></div>
+        <button class="btn" id="refreshBtn">🔄 手动刷新</button>
+        <div class="debug" id="debugLog">⏳ 等待启动...</div>
     </div>
-    <div class="footer">🎯 数据源可自定义 · 每10秒自动更新</div>
-</div>
 
-<script>
-    // ======================== 配置 ========================
-    // 使用 corsproxy.io 作为代理解决跨域问题
-    let API_URL = 'https://corsproxy.io/?url=https://pc28.help/api/kj.json';
-    const AUTO_REFRESH_INTERVAL = 10000;
-    const ALL_COMBOS = ['小双', '小单', '大双', '大单'];
+    <div class="card">
+        <h3 style="margin-bottom:12px;">📜 预测记录</h3>
+        <div id="historyContainer"><div style="text-align:center;color:#999;padding:12px 0;">暂无记录</div></div>
+    </div>
 
-    // ======================== 存储 ========================
-    let predictionRecords = [];
-    let lotteryData = [];
-    let isFetching = false;
-    let usingFallback = false;
+    <script>
+        const API_URL = 'https://corsproxy.io/?url=https://pc28.help/api/kj.json';
+        const ALL_COMBOS = ['小双', '小单', '大双', '大单'];
+        let lotteryData = [];
+        let predictionRecords = [];
+        let usingFallback = false;
 
-    // ======================== 调试日志 ========================
-    function debugLog(msg) {
-        const el = document.getElementById('debugLog');
-        if (!el) return;
-        const time = new Date().toLocaleTimeString();
-        const lines = el.textContent.split('\n');
-        lines.unshift(`[${time}] ${msg}`);
-        if (lines.length > 50) lines.pop();
-        el.textContent = lines.join('\n');
-        console.log('[预测工具]', msg);
-    }
-
-    // ======================== 工具函数 ========================
-    function getCombo(sum) {
-        const size = sum < 14 ? '小' : '大';
-        const parity = sum % 2 === 0 ? '双' : '单';
-        return size + parity;
-    }
-
-    function getSumsForCombo(data, combo) {
-        return data.filter(d => d.combination === combo).map(d => d.num);
-    }
-
-    function countCombos(data) {
-        const counts = { '小双': 0, '小单': 0, '大双': 0, '大单': 0 };
-        data.forEach(d => {
-            const c = d.combination;
-            if (counts[c] !== undefined) counts[c]++;
-        });
-        return counts;
-    }
-
-    function calcMiss(data, combo) {
-        let miss = 0;
-        for (let i = data.length - 1; i >= 0; i--) {
-            if (data[i].combination === combo) break;
-            miss++;
+        function debugLog(msg) {
+            const el = document.getElementById('debugLog');
+            const time = new Date().toLocaleTimeString();
+            el.textContent = `[${time}] ${msg}\n` + el.textContent.split('\n').slice(0, 30).join('\n');
+            console.log('[工具]', msg);
         }
-        return miss;
-    }
 
-    function getTopSums(data, combo, limit = 2) {
-        const sums = data.filter(d => d.combination === combo).map(d => d.num);
-        if (!sums.length) return ['--', '--'];
-        const freq = {};
-        sums.forEach(s => { freq[s] = (freq[s] || 0) + 1; });
-        const sorted = Object.entries(freq).sort((a, b) => b[1] - a[1]);
-        const top = sorted.slice(0, limit).map(item => parseInt(item[0]));
-        while (top.length < limit) top.push('--');
-        return top;
-    }
-
-    function predictNext(data) {
-        if (!data || data.length < 3) {
-            debugLog('数据不足，无法预测 (需要至少3期)');
-            return null;
+        function getCombo(sum) {
+            return (sum < 14 ? '小' : '大') + (sum % 2 === 0 ? '双' : '单');
         }
-        const counts = countCombos(data);
-        const total = data.length;
-        const scores = {};
-        ALL_COMBOS.forEach(combo => {
-            const freq = counts[combo] || 0;
-            const freqScore = freq / total;
-            const miss = calcMiss(data, combo);
-            const missScore = Math.min(miss / 12, 1);
-            const score = freqScore * 0.6 + missScore * 0.4;
-            scores[combo] = { combo, freq, miss, score, topSums: getTopSums(data, combo) };
-        });
-        const sorted = ALL_COMBOS.map(c => scores[c]).sort((a, b) => b.score - a.score);
-        const top2 = sorted.slice(0, 2);
-        const hotCombo = sorted[0]?.combo || '--';
-        const coldCombo = sorted[sorted.length - 1]?.combo || '--';
-        let confidence = '中';
-        if (top2.length >= 2) {
-            const diff = top2[0].score - top2[1].score;
-            if (diff > 0.12) confidence = '高';
-            else if (diff > 0.04) confidence = '中';
-            else confidence = '低';
+
+        function countCombos(data) {
+            const counts = { '小双':0, '小单':0, '大双':0, '大单':0 };
+            data.forEach(d => { if (counts[d.combination] !== undefined) counts[d.combination]++; });
+            return counts;
         }
-        debugLog(`预测完成: 首选 ${top2[0].combo}, 次选 ${top2[1].combo}`);
-        return { top2, hotCombo, coldCombo, confidence, total, counts };
-    }
 
-    function updatePredictionRecords(data) {
-        if (!data || data.length < 2) return;
-        const latest = data[data.length - 1];
-        const latestPeriod = latest.nbr;
-
-        let updated = false;
-        for (let rec of predictionRecords) {
-            if (rec.result !== null) continue;
-            const actual = data.find(d => d.nbr === rec.period);
-            if (actual) {
-                rec.actualCombo = actual.combination;
-                rec.actualSum = actual.num;
-                const hit = (rec.primary === rec.actualCombo || rec.secondary === rec.actualCombo);
-                rec.result = hit ? '中' : '错';
-                updated = true;
-                debugLog(`记录 ${rec.period} 结果: ${rec.result}`);
+        function calcMiss(data, combo) {
+            let miss = 0;
+            for (let i = data.length - 1; i >= 0; i--) {
+                if (data[i].combination === combo) break;
+                miss++;
             }
+            return miss;
         }
 
-        const nextPeriodNum = parseInt(latestPeriod) + 1;
-        const existing = predictionRecords.find(r => r.period === String(nextPeriodNum));
-        if (!existing && data.length >= 3) {
-            const result = predictNext(data);
-            if (result && result.top2 && result.top2.length >= 2) {
-                const p1 = result.top2[0];
-                const p2 = result.top2[1];
-                predictionRecords.push({
-                    period: String(nextPeriodNum),
-                    primary: p1.combo,
-                    primarySums: p1.topSums || ['--', '--'],
-                    secondary: p2.combo,
-                    secondarySums: p2.topSums || ['--', '--'],
-                    actualCombo: null,
-                    actualSum: null,
-                    result: null
-                });
-                updated = true;
-                debugLog(`生成新预测: ${nextPeriodNum}期 -> ${p1.combo}/${p2.combo}`);
-            }
+        function getTopSums(data, combo) {
+            const sums = data.filter(d => d.combination === combo).map(d => d.num);
+            if (!sums.length) return ['--', '--'];
+            const freq = {};
+            sums.forEach(s => freq[s] = (freq[s]||0)+1);
+            const sorted = Object.entries(freq).sort((a,b) => b[1]-a[1]);
+            const top = sorted.slice(0,2).map(i => parseInt(i[0]));
+            while (top.length < 2) top.push('--');
+            return top;
         }
 
-        if (predictionRecords.length > 50) {
-            predictionRecords = predictionRecords.slice(-50);
+        function predictNext(data) {
+            if (!data || data.length < 3) return null;
+            const counts = countCombos(data);
+            const total = data.length;
+            const scores = {};
+            ALL_COMBOS.forEach(combo => {
+                const freq = counts[combo] || 0;
+                const freqScore = freq / total;
+                const miss = calcMiss(data, combo);
+                const missScore = Math.min(miss / 12, 1);
+                scores[combo] = { combo, freq, miss, score: freqScore * 0.6 + missScore * 0.4, topSums: getTopSums(data, combo) };
+            });
+            const sorted = ALL_COMBOS.map(c => scores[c]).sort((a,b) => b.score - a.score);
+            return { top2: sorted.slice(0,2), total, counts };
         }
 
-        if (updated) {
+        async function fetchData() {
+            debugLog('正在请求数据...');
             try {
-                localStorage.setItem('combo_predict_records_v2', JSON.stringify(predictionRecords));
-            } catch (e) {}
-        }
-    }
-
-    // ======================== 数据获取 ========================
-    async function fetchLotteryData() {
-        if (isFetching) return false;
-        isFetching = true;
-        debugLog('开始获取数据...');
-        try {
-            const response = await fetch(API_URL, { signal: AbortSignal.timeout(10000) });
-            const json = await response.json();
-            debugLog(`API返回: message=${json.message}, data长度=${json.data?.length || 0}`);
-            
-            if (json.message === 'success' && Array.isArray(json.data) && json.data.length > 0) {
-                const raw = json.data.slice(0, 30);
-                lotteryData = raw.map(item => ({
-                    nbr: item.nbr,
-                    number: item.number,
-                    num: parseInt(item.num),
-                    combination: item.combination
-                }));
-                lotteryData.sort((a, b) => parseInt(a.nbr) - parseInt(b.nbr));
-                usingFallback = false;
-                isFetching = false;
-                debugLog(`✅ 成功获取 ${lotteryData.length} 条数据，最新期: ${lotteryData[lotteryData.length-1]?.nbr}`);
+                const resp = await fetch(API_URL, { signal: AbortSignal.timeout(10000) });
+                const json = await resp.json();
+                debugLog(`收到数据: ${json.data?.length || 0} 条`);
+                if (json.message === 'success' && Array.isArray(json.data) && json.data.length > 0) {
+                    lotteryData = json.data.slice(0,30).map(item => ({
+                        nbr: item.nbr,
+                        number: item.number,
+                        num: parseInt(item.num),
+                        combination: item.combination
+                    }));
+                    lotteryData.sort((a,b) => parseInt(a.nbr) - parseInt(b.nbr));
+                    usingFallback = false;
+                    document.getElementById('dataStatus').textContent = '✅ 在线';
+                    document.getElementById('dataStatus').className = 'live';
+                    debugLog(`✅ 成功获取 ${lotteryData.length} 条`);
+                    return true;
+                }
+                throw new Error('数据格式错误');
+            } catch (e) {
+                debugLog(`❌ 请求失败: ${e.message}`);
+                lotteryData = [
+                    { nbr: '3472290', number: '8+7+2', num: 17, combination: '大单' },
+                    { nbr: '3472289', number: '3+5+4', num: 12, combination: '小双' },
+                    { nbr: '3472288', number: '9+1+1', num: 11, combination: '小单' },
+                    { nbr: '3472287', number: '6+8+2', num: 16, combination: '大双' },
+                    { nbr: '3472286', number: '2+4+1', num: 7, combination: '小单' },
+                    { nbr: '3472285', number: '9+5+8', num: 22, combination: '大双' },
+                    { nbr: '3472284', number: '7+3+6', num: 16, combination: '大双' },
+                    { nbr: '3472283', number: '0+9+8', num: 17, combination: '大单' },
+                    { nbr: '3472282', number: '4+6+3', num: 13, combination: '小单' },
+                    { nbr: '3472281', number: '8+0+5', num: 13, combination: '小单' },
+                ];
+                usingFallback = true;
+                document.getElementById('dataStatus').textContent = '⚠️ 备用数据';
+                document.getElementById('dataStatus').className = 'warn';
                 return true;
             }
-            throw new Error('数据格式错误或为空');
-        } catch (e) {
-            debugLog(`❌ 获取失败: ${e.message}，使用备用数据`);
-            const fallback = [
-                { nbr: '3472290', number: '8+7+2', num: 17, combination: '大单' },
-                { nbr: '3472289', number: '3+5+4', num: 12, combination: '小双' },
-                { nbr: '3472288', number: '9+1+1', num: 11, combination: '小单' },
-                { nbr: '3472287', number: '6+8+2', num: 16, combination: '大双' },
-                { nbr: '3472286', number: '2+4+1', num: 7, combination: '小单' },
-                { nbr: '3472285', number: '9+5+8', num: 22, combination: '大双' },
-                { nbr: '3472284', number: '7+3+6', num: 16, combination: '大双' },
-                { nbr: '3472283', number: '0+9+8', num: 17, combination: '大单' },
-                { nbr: '3472282', number: '4+6+3', num: 13, combination: '小单' },
-                { nbr: '3472281', number: '8+0+5', num: 13, combination: '小单' },
-            ];
-            lotteryData = fallback;
-            usingFallback = true;
-            isFetching = false;
-            return true;
-        }
-    }
-
-    // ======================== UI渲染 ========================
-    const $ = id => document.getElementById(id);
-    let toastTimer = null;
-
-    function showToast(msg, type = '') {
-        const el = $('toast');
-        el.textContent = msg;
-        el.className = 'toast ' + type;
-        clearTimeout(toastTimer);
-        void el.offsetWidth;
-        el.classList.add('show');
-        toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
-    }
-
-    function renderPrediction(result) {
-        const container = $('predictionContainer');
-        if (!result || !result.top2 || result.top2.length < 2) {
-            container.innerHTML = `<div style="text-align:center;padding:24px 0;color:var(--text-tertiary);font-size:14px;">⚠️ 数据不足，无法预测</div>`;
-            return;
         }
 
-        const items = result.top2.map((item, idx) => {
-            const medal = idx === 0 ? '🥇' : '🥈';
-            const label = idx === 0 ? '首选' : '次选';
-            const sums = item.topSums || ['--', '--'];
-            const missText = item.miss > 0 ? `遗漏 ${item.miss} 期` : '近期热出';
-            const scorePct = (item.score * 100).toFixed(1);
-            const cls = idx === 0 ? 'primary' : 'secondary';
-            return `
-                <div class="predict-item ${cls}">
-                    <div class="rank"><span class="medal">${medal}</span> ${label} · 得分 ${scorePct}%</div>
-                    <div class="combo">🎯 <span class="highlight">${item.combo}</span></div>
-                    <div class="sums">
-                        <span class="sum-tag">和值 ${sums[0]}</span>
-                        <span class="sum-tag">和值 ${sums[1]}</span>
+        function render() {
+            const result = predictNext(lotteryData);
+            const container = document.getElementById('predictionContainer');
+            if (!result || !result.top2) {
+                container.innerHTML = '<div style="text-align:center;padding:20px 0;color:#999;">数据不足，无法预测</div>';
+                return;
+            }
+            document.getElementById('totalPeriods').textContent = result.total;
+            const items = result.top2.map((item, idx) => {
+                const medal = idx === 0 ? '🥇' : '🥈';
+                const label = idx === 0 ? '首选' : '次选';
+                const sums = item.topSums;
+                const missText = item.miss > 0 ? `遗漏 ${item.miss} 期` : '近期热出';
+                const scorePct = (item.score * 100).toFixed(0);
+                const cls = idx === 0 ? 'predict-box primary' : 'predict-box';
+                return `
+                    <div class="${cls}">
+                        <div class="rank">${medal} ${label} · 得分 ${scorePct}%</div>
+                        <div class="combo-item">${item.combo}</div>
+                        <div><span class="sum-tag">和值 ${sums[0]}</span><span class="sum-tag">和值 ${sums[1]}</span></div>
+                        <div style="font-size:11px;color:#888;margin-top:4px;">出现 ${item.freq} 次 · ${missText}</div>
                     </div>
-                    <div class="score-bar"><div class="fill" style="width:${scorePct}%"></div></div>
-                    <div class="reason">📊 出现 ${item.freq} 次 · ${missText}</div>
-                    ${idx === 0 ? `<span class="confidence ${result.confidence === '高' ? 'high' : ''}">⭐ 置信度 ${result.confidence}</span>` : ''}
-                </div>
-            `;
-        });
-
-        container.innerHTML = `<div class="predict-grid">${items.join('')}</div>`;
-
-        $('hotCombo').textContent = result.hotCombo;
-        $('coldCombo').textContent = result.coldCombo;
-        $('totalPeriods').textContent = result.total;
-
-        if (lotteryData.length > 0) {
-            const latest = lotteryData[lotteryData.length - 1];
-            const nextNum = parseInt(latest.nbr) + 1;
-            $('nextPeriodBadge').textContent = nextNum + '期';
+                `;
+            });
+            container.innerHTML = `<div class="grid">${items.join('')}</div>`;
+            updateHistory();
         }
-        $('dataStatus').textContent = usingFallback ? '⚠️ 备用数据' : '✅ 在线';
-        $('dataStatus').className = 'value ' + (usingFallback ? 'warn' : 'live');
-        const badge = $('dataSourceBadge');
-        badge.textContent = usingFallback ? '📁 本地数据' : '📡 在线';
-        badge.className = 'data-source-badge ' + (usingFallback ? 'local' : 'online');
-        
-        // 更新时间
-        $('updateTime').textContent = new Date().toLocaleTimeString();
-    }
 
-    function renderChart(result) {
-        if (!result || !result.counts) return;
-        const total = result.total || 1;
-        const chart = $('comboChart');
-        const bars = chart.querySelectorAll('.combo-bar');
-        const combos = ['小双', '小单', '大双', '大单'];
-        bars.forEach((bar, idx) => {
-            const combo = combos[idx];
-            const count = result.counts[combo] || 0;
-            const pct = Math.round((count / total) * 100);
-            bar.querySelector('.fill').style.width = pct + '%';
-            bar.querySelector('.count').textContent = count;
+        function updateHistory() {
+            const container = document.getElementById('historyContainer');
+            if (!predictionRecords.length) {
+                container.innerHTML = '<div style="text-align:center;color:#999;padding:12px 0;">暂无记录</div>';
+                return;
+            }
+            const sorted = [...predictionRecords].sort((a,b) => parseInt(b.period) - parseInt(a.period));
+            const html = sorted.slice(0,15).map(r => {
+                let badge = '<span class="badge wait">⏳ 待定</span>';
+                if (r.result === '中') badge = '<span class="badge ok">✅ 中</span>';
+                if (r.result === '错') badge = '<span class="badge fail">❌ 错</span>';
+                return `<div class="history-item">
+                    <span>${r.period}期</span>
+                    <span>${r.primary}/${r.secondary}</span>
+                    <span>实际 ${r.actualCombo || '--'}</span>
+                    ${badge}
+                </div>`;
+            }).join('');
+            container.innerHTML = html;
+        }
+
+        document.getElementById('refreshBtn').addEventListener('click', async () => {
+            await fetchData();
+            render();
         });
-    }
 
-    function renderHistory() {
-        const tbody = $('historyBody');
-        const sorted = [...predictionRecords].sort((a, b) => parseInt(b.period) - parseInt(a.period));
-        const display = sorted.slice(0, 30);
-        if (!display.length) {
-            tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--text-tertiary);
+        async function init() {
+            await fetchData();
+            render();
+            setInterval(async () => {
+                await fetchData();
+                render();
+            }, 15000);
+        }
+        init();
+    </script>
+</body>
+</html>
