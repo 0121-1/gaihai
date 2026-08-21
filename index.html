@@ -26,62 +26,64 @@
         .badge.wait { background: #f1f3f5; color: #666; }
         .live { color: #00B894; }
         .warn { color: #FF7675; }
+        .record-item { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #eee; font-size: 12px; }
+        .record-item .num { font-weight: 600; }
+        .api-config { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+        .api-config input { flex: 1; min-width: 200px; padding: 8px 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 13px; }
+        .api-config button { padding: 8px 16px; border: none; border-radius: 8px; background: #6C5CE7; color: white; font-weight: 600; cursor: pointer; }
+        .api-config button:active { transform: scale(0.95); }
     </style>
 </head>
 <body>
     <h1>🎯 组合+和值预测</h1>
+
+    <!-- API设置区域 -->
     <div class="card">
-        <div class="status-bar">
-            <span>📊 状态: <span id="dataStatus" class="live">✅ 已加载</span></span>
-            <span>📋 期数: <span id="totalPeriods">--</span></span>
+        <div style="font-size:14px;font-weight:600;margin-bottom:8px;">📡 API地址设置</div>
+        <div class="api-config">
+            <input type="text" id="apiInput" value="https://api.allorigins.win/raw?url=https://pc28.help/api/kj.json">
+            <button id="setApiBtn">设置</button>
+            <span style="font-size:12px;color:#888;" id="apiStatus">✅ 当前有效</span>
         </div>
     </div>
+
+    <div class="card">
+        <div class="status-bar">
+            <span>📊 状态: <span id="dataStatus" class="live">加载中...</span></span>
+            <span>📋 期数: <span id="totalPeriods">--</span></span>
+            <span>📡 数据源: <span id="dataSource">--</span></span>
+        </div>
+    </div>
+
     <div class="card">
         <h3 style="margin-bottom:12px;">🔮 下一期预测 · 双组合</h3>
         <div id="predictionContainer"><div style="text-align:center;padding:20px 0;color:#999;">正在加载数据...</div></div>
         <button class="btn" id="refreshBtn">🔄 刷新预测</button>
         <div class="debug" id="debugLog">⏳ 等待启动...</div>
     </div>
+
     <div class="card">
-        <h3 style="margin-bottom:12px;">📜 预测记录</h3>
-        <div id="historyContainer"><div style="text-align:center;color:#999;padding:12px 0;">暂无记录</div></div>
+        <h3 style="margin-bottom:12px;">📜 开奖记录（最近20期）</h3>
+        <div id="historyContainer"><div style="text-align:center;color:#999;padding:12px 0;">加载中...</div></div>
     </div>
+
+    <div class="card">
+        <h3 style="margin-bottom:12px;">📊 预测记录</h3>
+        <div id="predictHistory"><div style="text-align:center;color:#999;padding:12px 0;">暂无记录</div></div>
+    </div>
+
     <script>
-        const BUILTIN_DATA = [
-            { nbr: '3472300', number: '8+7+2', num: 17, combination: '大单' },
-            { nbr: '3472299', number: '3+5+4', num: 12, combination: '小双' },
-            { nbr: '3472298', number: '9+1+1', num: 11, combination: '小单' },
-            { nbr: '3472297', number: '6+8+2', num: 16, combination: '大双' },
-            { nbr: '3472296', number: '2+4+1', num: 7, combination: '小单' },
-            { nbr: '3472295', number: '9+5+8', num: 22, combination: '大双' },
-            { nbr: '3472294', number: '7+3+6', num: 16, combination: '大双' },
-            { nbr: '3472293', number: '0+9+8', num: 17, combination: '大单' },
-            { nbr: '3472292', number: '4+6+3', num: 13, combination: '小单' },
-            { nbr: '3472291', number: '8+0+5', num: 13, combination: '小单' },
-            { nbr: '3472290', number: '5+7+4', num: 16, combination: '大双' },
-            { nbr: '3472289', number: '1+9+2', num: 12, combination: '小双' },
-            { nbr: '3472288', number: '6+6+3', num: 15, combination: '大单' },
-            { nbr: '3472287', number: '2+8+1', num: 11, combination: '小单' },
-            { nbr: '3472286', number: '9+0+6', num: 15, combination: '大单' },
-            { nbr: '3472285', number: '4+7+5', num: 16, combination: '大双' },
-            { nbr: '3472284', number: '3+3+8', num: 14, combination: '大双' },
-            { nbr: '3472283', number: '7+1+4', num: 12, combination: '小双' },
-            { nbr: '3472282', number: '5+9+0', num: 14, combination: '大双' },
-            { nbr: '3472281', number: '6+2+5', num: 13, combination: '小单' },
-            { nbr: '3472280', number: '8+8+1', num: 17, combination: '大单' },
-            { nbr: '3472279', number: '3+4+9', num: 16, combination: '大双' },
-            { nbr: '3472278', number: '1+7+2', num: 10, combination: '小双' },
-            { nbr: '3472277', number: '9+3+6', num: 18, combination: '大双' },
-            { nbr: '3472276', number: '5+5+5', num: 15, combination: '大单' },
-            { nbr: '3472275', number: '2+6+8', num: 16, combination: '大双' },
-            { nbr: '3472274', number: '0+4+7', num: 11, combination: '小单' },
-            { nbr: '3472273', number: '8+9+9', num: 26, combination: '大双' },
-            { nbr: '3472272', number: '3+7+1', num: 11, combination: '小单' },
-            { nbr: '3472271', number: '6+4+8', num: 18, combination: '大双' }
-        ];
+        // ===== 配置 =====
+        let API_URL = 'https://api.allorigins.win/raw?url=https://pc28.help/api/kj.json';
         const ALL_COMBOS = ['小双', '小单', '大双', '大单'];
         let lotteryData = [];
         let predictionRecords = [];
+        let usingFallback = false;
+
+        // ===== DOM =====
+        const apiInput = document.getElementById('apiInput');
+        const setApiBtn = document.getElementById('setApiBtn');
+        const apiStatus = document.getElementById('apiStatus');
 
         function debugLog(msg) {
             const el = document.getElementById('debugLog');
@@ -132,45 +134,103 @@
             return { top2: sorted.slice(0,2), total, counts };
         }
 
-        function loadData() {
-            lotteryData = JSON.parse(JSON.stringify(BUILTIN_DATA));
-            lotteryData.sort((a,b) => parseInt(a.nbr) - parseInt(b.nbr));
-            debugLog(`✅ 加载 ${lotteryData.length} 条数据`);
-            document.getElementById('dataStatus').textContent = '✅ 已加载';
-            document.getElementById('dataStatus').className = 'live';
+        // ===== 从API获取数据 =====
+        async function fetchFromAPI(url) {
+            try {
+                const resp = await fetch(url, { signal: AbortSignal.timeout(10000) });
+                const json = await resp.json();
+                if (json.message === 'success' && Array.isArray(json.data) && json.data.length > 0) {
+                    const data = json.data.map(item => ({
+                        nbr: item.nbr,
+                        number: item.number,
+                        num: parseInt(item.num),
+                        combination: item.combination
+                    }));
+                    data.sort((a,b) => parseInt(a.nbr) - parseInt(b.nbr));
+                    debugLog(`✅ API获取成功: ${data.length} 条`);
+                    return data;
+                }
+                throw new Error('API数据格式错误');
+            } catch (e) {
+                debugLog(`⚠️ API获取失败: ${e.message}`);
+                return null;
+            }
+        }
+
+        // ===== 加载数据 =====
+        async function loadData() {
+            const apiData = await fetchFromAPI(API_URL);
+            if (apiData && apiData.length > 5) {
+                lotteryData = apiData;
+                usingFallback = false;
+                document.getElementById('dataStatus').textContent = '✅ 在线';
+                document.getElementById('dataStatus').className = 'live';
+                document.getElementById('dataSource').textContent = 'API';
+            } else {
+                // 如果API失败，显示错误提示
+                lotteryData = [];
+                usingFallback = true;
+                document.getElementById('dataStatus').textContent = '❌ API获取失败';
+                document.getElementById('dataStatus').className = 'warn';
+                document.getElementById('dataSource').textContent = '无数据';
+                debugLog('❌ 无法获取数据，请检查API地址或网络');
+            }
+            debugLog(`📊 加载 ${lotteryData.length} 条数据`);
             return true;
         }
 
+        // ===== 渲染 =====
         function render() {
+            // 预测
             const result = predictNext(lotteryData);
             const container = document.getElementById('predictionContainer');
             if (!result || !result.top2) {
-                container.innerHTML = '<div style="text-align:center;padding:20px 0;color:#999;">数据不足，无法预测</div>';
-                return;
+                container.innerHTML = '<div style="text-align:center;padding:20px 0;color:#999;">数据不足，无法预测（至少需要3期数据）</div>';
+            } else {
+                document.getElementById('totalPeriods').textContent = result.total;
+                const items = result.top2.map((item, idx) => {
+                    const medal = idx === 0 ? '🥇' : '🥈';
+                    const label = idx === 0 ? '首选' : '次选';
+                    const sums = item.topSums;
+                    const missText = item.miss > 0 ? `遗漏 ${item.miss} 期` : '近期热出';
+                    const scorePct = (item.score * 100).toFixed(0);
+                    const cls = idx === 0 ? 'predict-box primary' : 'predict-box';
+                    return `<div class="${cls}">
+                        <div class="rank">${medal} ${label} · 得分 ${scorePct}%</div>
+                        <div class="combo-item">${item.combo}</div>
+                        <div><span class="sum-tag">和值 ${sums[0]}</span><span class="sum-tag">和值 ${sums[1]}</span></div>
+                        <div style="font-size:11px;color:#888;margin-top:4px;">出现 ${item.freq} 次 · ${missText}</div>
+                    </div>`;
+                });
+                container.innerHTML = `<div class="grid">${items.join('')}</div>`;
             }
-            document.getElementById('totalPeriods').textContent = result.total;
-            const items = result.top2.map((item, idx) => {
-                const medal = idx === 0 ? '🥇' : '🥈';
-                const label = idx === 0 ? '首选' : '次选';
-                const sums = item.topSums;
-                const missText = item.miss > 0 ? `遗漏 ${item.miss} 期` : '近期热出';
-                const scorePct = (item.score * 100).toFixed(0);
-                const cls = idx === 0 ? 'predict-box primary' : 'predict-box';
-                return `<div class="${cls}">
-                    <div class="rank">${medal} ${label} · 得分 ${scorePct}%</div>
-                    <div class="combo-item">${item.combo}</div>
-                    <div><span class="sum-tag">和值 ${sums[0]}</span><span class="sum-tag">和值 ${sums[1]}</span></div>
-                    <div style="font-size:11px;color:#888;margin-top:4px;">出现 ${item.freq} 次 · ${missText}</div>
-                </div>`;
-            });
-            container.innerHTML = `<div class="grid">${items.join('')}</div>`;
-            updateHistory();
+
+            // 开奖记录
+            renderHistory();
+            renderPredictHistory();
         }
 
-        function updateHistory() {
+        function renderHistory() {
             const container = document.getElementById('historyContainer');
+            if (!lotteryData || lotteryData.length === 0) {
+                container.innerHTML = '<div style="text-align:center;color:#999;padding:12px 0;">暂无数据，请检查API地址</div>';
+                return;
+            }
+            const sorted = [...lotteryData].sort((a,b) => parseInt(b.nbr) - parseInt(a.nbr));
+            const html = sorted.slice(0,20).map(r => `
+                <div class="record-item">
+                    <span class="num">${r.nbr}期</span>
+                    <span>${r.number} → ${r.num}</span>
+                    <span style="font-weight:600;">${r.combination}</span>
+                </div>
+            `).join('');
+            container.innerHTML = html;
+        }
+
+        function renderPredictHistory() {
+            const container = document.getElementById('predictHistory');
             if (!predictionRecords.length) {
-                container.innerHTML = '<div style="text-align:center;color:#999;padding:12px 0;">暂无记录</div>';
+                container.innerHTML = '<div style="text-align:center;color:#999;padding:12px 0;">暂无预测记录</div>';
                 return;
             }
             const sorted = [...predictionRecords].sort((a,b) => parseInt(b.period) - parseInt(a.period));
@@ -188,16 +248,42 @@
             container.innerHTML = html;
         }
 
-        document.getElementById('refreshBtn').addEventListener('click', () => {
-            loadData();
+        // ===== 设置API地址 =====
+        setApiBtn.addEventListener('click', () => {
+            const newUrl = apiInput.value.trim();
+            if (newUrl) {
+                API_URL = newUrl;
+                apiStatus.textContent = '✅ 已更新';
+                apiStatus.style.color = '#00B894';
+                debugLog(`🔧 API地址已更新: ${API_URL}`);
+                loadData().then(() => render());
+            }
+        });
+
+        // ===== 刷新 =====
+        document.getElementById('refreshBtn').addEventListener('click', async () => {
+            await loadData();
             render();
             debugLog('🔄 手动刷新完成');
         });
 
-        function init() {
-            loadData();
+        // ===== 启动 =====
+        async function init() {
+            // 从localStorage读取保存的API地址
+            const saved = localStorage.getItem('lottery_api_url');
+            if (saved) {
+                API_URL = saved;
+                apiInput.value = saved;
+                apiStatus.textContent = '✅ 已加载';
+            }
+            await loadData();
             render();
             debugLog('✅ 工具已启动');
+            // 每30秒自动刷新
+            setInterval(async () => {
+                await loadData();
+                render();
+            }, 30000);
         }
         init();
     </script>
