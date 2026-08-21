@@ -18,7 +18,7 @@
         .rank { font-size: 12px; color: #888; }
         .btn { background: #6C5CE7; color: white; border: none; padding: 12px; border-radius: 30px; font-size: 16px; cursor: pointer; width: 100%; }
         .btn:active { transform: scale(0.97); }
-        .debug { background: #1e1e2e; color: #cdd6f4; font-family: monospace; font-size: 11px; padding: 12px; border-radius: 12px; max-height: 120px; overflow-y: auto; white-space: pre-wrap; }
+        .debug { background: #1e1e2e; color: #cdd6f4; font-family: monospace; font-size: 11px; padding: 12px; border-radius: 12px; max-height: 150px; overflow-y: auto; white-space: pre-wrap; }
         .history-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #eee; font-size: 13px; }
         .badge { display: inline-block; padding: 2px 12px; border-radius: 20px; font-size: 12px; }
         .badge.ok { background: #d3eddb; color: #0b5531; }
@@ -32,41 +32,50 @@
         .api-config input { flex: 1; min-width: 200px; padding: 8px 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 13px; }
         .api-config button { padding: 8px 16px; border: none; border-radius: 8px; background: #6C5CE7; color: white; font-weight: 600; cursor: pointer; }
         .api-config button:active { transform: scale(0.95); }
+        .progress-bar { height: 6px; background: #eee; border-radius: 3px; margin-top: 8px; overflow: hidden; }
+        .progress-bar .fill { height: 100%; background: #6C5CE7; border-radius: 3px; transition: width 0.5s; }
+        .count-badge { display: inline-block; background: #6C5CE7; color: white; padding: 0 12px; border-radius: 20px; font-size: 12px; }
     </style>
 </head>
 <body>
     <h1>🎯 组合+和值预测</h1>
 
-    <!-- API设置区域 -->
+    <!-- API设置 -->
     <div class="card">
-        <div style="font-size:14px;font-weight:600;margin-bottom:8px;">📡 API地址设置</div>
+        <div style="font-size:14px;font-weight:600;margin-bottom:8px;">📡 API地址</div>
         <div class="api-config">
-            <input type="text" id="apiInput" value="https://api.allorigins.win/raw?url=https://pc28.help/api/kj.json">
+            <input type="text" id="apiInput" value="https://corsproxy.io/?url=https://pc28.help/api/kj.json">
             <button id="setApiBtn">设置</button>
             <span style="font-size:12px;color:#888;" id="apiStatus">✅ 当前有效</span>
         </div>
     </div>
 
+    <!-- 状态 -->
     <div class="card">
         <div class="status-bar">
             <span>📊 状态: <span id="dataStatus" class="live">加载中...</span></span>
-            <span>📋 期数: <span id="totalPeriods">--</span></span>
-            <span>📡 数据源: <span id="dataSource">--</span></span>
+            <span>📋 已存: <span id="totalPeriods">0</span> 期</span>
+            <span><span class="count-badge" id="needCount">需要 5 期才能预测</span></span>
         </div>
+        <div class="progress-bar"><div class="fill" id="progressFill" style="width:0%"></div></div>
     </div>
 
+    <!-- 预测 -->
     <div class="card">
         <h3 style="margin-bottom:12px;">🔮 下一期预测 · 双组合</h3>
-        <div id="predictionContainer"><div style="text-align:center;padding:20px 0;color:#999;">正在加载数据...</div></div>
-        <button class="btn" id="refreshBtn">🔄 刷新预测</button>
+        <div id="predictionContainer"><div style="text-align:center;padding:20px 0;color:#999;">正在获取数据...</div></div>
+        <button class="btn" id="refreshBtn">📥 获取最新一期并保存</button>
+        <button class="btn" id="clearBtn" style="background:#999;margin-top:8px;">🗑️ 清空所有数据重新累积</button>
         <div class="debug" id="debugLog">⏳ 等待启动...</div>
     </div>
 
+    <!-- 开奖记录 -->
     <div class="card">
-        <h3 style="margin-bottom:12px;">📜 开奖记录（最近20期）</h3>
-        <div id="historyContainer"><div style="text-align:center;color:#999;padding:12px 0;">加载中...</div></div>
+        <h3 style="margin-bottom:12px;">📜 已保存的开奖记录</h3>
+        <div id="historyContainer"><div style="text-align:center;color:#999;padding:12px 0;">暂无数据</div></div>
     </div>
 
+    <!-- 预测记录 -->
     <div class="card">
         <h3 style="margin-bottom:12px;">📊 预测记录</h3>
         <div id="predictHistory"><div style="text-align:center;color:#999;padding:12px 0;">暂无记录</div></div>
@@ -74,16 +83,18 @@
 
     <script>
         // ===== 配置 =====
-        let API_URL = 'https://api.allorigins.win/raw?url=https://pc28.help/api/kj.json';
+        let API_URL = 'https://corsproxy.io/?url=https://pc28.help/api/kj.json';
         const ALL_COMBOS = ['小双', '小单', '大双', '大单'];
+        const NEED_COUNT = 5; // 需要5期数据才能预测
         let lotteryData = [];
         let predictionRecords = [];
-        let usingFallback = false;
 
         // ===== DOM =====
         const apiInput = document.getElementById('apiInput');
         const setApiBtn = document.getElementById('setApiBtn');
         const apiStatus = document.getElementById('apiStatus');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const clearBtn = document.getElementById('clearBtn');
 
         function debugLog(msg) {
             const el = document.getElementById('debugLog');
@@ -92,6 +103,76 @@
             console.log('[工具]', msg);
         }
 
+        // ===== 从本地存储加载数据 =====
+        function loadFromStorage() {
+            try {
+                const saved = localStorage.getItem('lottery_data_v2');
+                if (saved) {
+                    lotteryData = JSON.parse(saved);
+                    debugLog(`📂 从本地加载 ${lotteryData.length} 条数据`);
+                }
+                const records = localStorage.getItem('predict_records_v2');
+                if (records) {
+                    predictionRecords = JSON.parse(records);
+                }
+            } catch (e) {
+                debugLog('⚠️ 加载本地数据失败');
+            }
+        }
+
+        // ===== 保存到本地存储 =====
+        function saveToStorage() {
+            try {
+                localStorage.setItem('lottery_data_v2', JSON.stringify(lotteryData));
+                localStorage.setItem('predict_records_v2', JSON.stringify(predictionRecords));
+            } catch (e) {
+                debugLog('⚠️ 保存失败');
+            }
+        }
+
+        // ===== 从API获取最新一期 =====
+        async function fetchLatest() {
+            try {
+                const resp = await fetch(API_URL, { signal: AbortSignal.timeout(8000) });
+                const json = await resp.json();
+                if (json.message === 'success' && Array.isArray(json.data) && json.data.length > 0) {
+                    const item = json.data[0];
+                    return {
+                        nbr: item.nbr,
+                        number: item.number,
+                        num: parseInt(item.num),
+                        combination: item.combination
+                    };
+                }
+                return null;
+            } catch (e) {
+                debugLog(`⚠️ API请求失败: ${e.message}`);
+                return null;
+            }
+        }
+
+        // ===== 添加新数据（自动去重） =====
+        function addNewData(newItem) {
+            if (!newItem) return false;
+            // 检查是否已存在
+            const exists = lotteryData.some(d => d.nbr === newItem.nbr);
+            if (exists) {
+                debugLog(`⏭️ 期号 ${newItem.nbr} 已存在，跳过`);
+                return false;
+            }
+            lotteryData.push(newItem);
+            // 按期号排序
+            lotteryData.sort((a, b) => parseInt(a.nbr) - parseInt(b.nbr));
+            // 只保留最近50期
+            if (lotteryData.length > 50) {
+                lotteryData = lotteryData.slice(-50);
+            }
+            saveToStorage();
+            debugLog(`✅ 新增期号 ${newItem.nbr}，当前共 ${lotteryData.length} 条`);
+            return true;
+        }
+
+        // ===== 预测算法 =====
         function countCombos(data) {
             const counts = { '小双':0, '小单':0, '大双':0, '大单':0 };
             data.forEach(d => { if (counts[d.combination] !== undefined) counts[d.combination]++; });
@@ -119,7 +200,7 @@
         }
 
         function predictNext(data) {
-            if (!data || data.length < 3) return null;
+            if (!data || data.length < NEED_COUNT) return null;
             const counts = countCombos(data);
             const total = data.length;
             const scores = {};
@@ -134,86 +215,95 @@
             return { top2: sorted.slice(0,2), total, counts };
         }
 
-        // ===== 从API获取数据 =====
-        async function fetchFromAPI(url) {
-            try {
-                const resp = await fetch(url, { signal: AbortSignal.timeout(10000) });
-                const json = await resp.json();
-                if (json.message === 'success' && Array.isArray(json.data) && json.data.length > 0) {
-                    const data = json.data.map(item => ({
-                        nbr: item.nbr,
-                        number: item.number,
-                        num: parseInt(item.num),
-                        combination: item.combination
-                    }));
-                    data.sort((a,b) => parseInt(a.nbr) - parseInt(b.nbr));
-                    debugLog(`✅ API获取成功: ${data.length} 条`);
-                    return data;
+        // ===== 更新预测记录 =====
+        function updatePredictRecords() {
+            if (lotteryData.length < 2) return;
+            const latest = lotteryData[lotteryData.length - 1];
+            for (let rec of predictionRecords) {
+                if (rec.result !== null) continue;
+                if (rec.period === latest.nbr) {
+                    rec.actualCombo = latest.combination;
+                    rec.actualSum = latest.num;
+                    const hit = (rec.primary === rec.actualCombo || rec.secondary === rec.actualCombo);
+                    rec.result = hit ? '中' : '错';
+                    debugLog(`📝 ${rec.period}期 预测结果: ${rec.result}`);
                 }
-                throw new Error('API数据格式错误');
-            } catch (e) {
-                debugLog(`⚠️ API获取失败: ${e.message}`);
-                return null;
             }
+            saveToStorage();
         }
 
-        // ===== 加载数据 =====
-        async function loadData() {
-            const apiData = await fetchFromAPI(API_URL);
-            if (apiData && apiData.length > 5) {
-                lotteryData = apiData;
-                usingFallback = false;
-                document.getElementById('dataStatus').textContent = '✅ 在线';
-                document.getElementById('dataStatus').className = 'live';
-                document.getElementById('dataSource').textContent = 'API';
-            } else {
-                // 如果API失败，显示错误提示
-                lotteryData = [];
-                usingFallback = true;
-                document.getElementById('dataStatus').textContent = '❌ API获取失败';
-                document.getElementById('dataStatus').className = 'warn';
-                document.getElementById('dataSource').textContent = '无数据';
-                debugLog('❌ 无法获取数据，请检查API地址或网络');
-            }
-            debugLog(`📊 加载 ${lotteryData.length} 条数据`);
-            return true;
-        }
-
-        // ===== 渲染 =====
-        function render() {
-            // 预测
+        // ===== 生成新预测 =====
+        function generateNewPrediction() {
+            if (lotteryData.length < NEED_COUNT) return;
             const result = predictNext(lotteryData);
-            const container = document.getElementById('predictionContainer');
-            if (!result || !result.top2) {
-                container.innerHTML = '<div style="text-align:center;padding:20px 0;color:#999;">数据不足，无法预测（至少需要3期数据）</div>';
-            } else {
-                document.getElementById('totalPeriods').textContent = result.total;
-                const items = result.top2.map((item, idx) => {
-                    const medal = idx === 0 ? '🥇' : '🥈';
-                    const label = idx === 0 ? '首选' : '次选';
-                    const sums = item.topSums;
-                    const missText = item.miss > 0 ? `遗漏 ${item.miss} 期` : '近期热出';
-                    const scorePct = (item.score * 100).toFixed(0);
-                    const cls = idx === 0 ? 'predict-box primary' : 'predict-box';
-                    return `<div class="${cls}">
-                        <div class="rank">${medal} ${label} · 得分 ${scorePct}%</div>
-                        <div class="combo-item">${item.combo}</div>
-                        <div><span class="sum-tag">和值 ${sums[0]}</span><span class="sum-tag">和值 ${sums[1]}</span></div>
-                        <div style="font-size:11px;color:#888;margin-top:4px;">出现 ${item.freq} 次 · ${missText}</div>
-                    </div>`;
+            if (!result) return;
+            const latest = lotteryData[lotteryData.length - 1];
+            const nextNum = parseInt(latest.nbr) + 1;
+            const exists = predictionRecords.some(r => r.period === String(nextNum));
+            if (!exists) {
+                const p1 = result.top2[0];
+                const p2 = result.top2[1];
+                predictionRecords.push({
+                    period: String(nextNum),
+                    primary: p1.combo,
+                    primarySums: p1.topSums || ['--', '--'],
+                    secondary: p2.combo,
+                    secondarySums: p2.topSums || ['--', '--'],
+                    actualCombo: null,
+                    actualSum: null,
+                    result: null
                 });
-                container.innerHTML = `<div class="grid">${items.join('')}</div>`;
+                saveToStorage();
+                debugLog(`🔮 生成预测: ${nextNum}期 → ${p1.combo}/${p2.combo}`);
+            }
+        }
+
+        // ===== 渲染UI =====
+        function render() {
+            const total = lotteryData.length;
+            document.getElementById('totalPeriods').textContent = total;
+            document.getElementById('needCount').textContent = total >= NEED_COUNT ? '✅ 可预测' : `需要 ${NEED_COUNT} 期才能预测 (当前 ${total})`;
+            
+            const pct = Math.min((total / NEED_COUNT) * 100, 100);
+            document.getElementById('progressFill').style.width = pct + '%';
+
+            // 预测
+            const container = document.getElementById('predictionContainer');
+            if (total < NEED_COUNT) {
+                container.innerHTML = `<div style="text-align:center;padding:20px 0;color:#999;">📥 数据不足，需要 ${NEED_COUNT} 期才能预测。<br>点击下方按钮获取最新开奖数据累积。</div>`;
+            } else {
+                const result = predictNext(lotteryData);
+                if (!result || !result.top2) {
+                    container.innerHTML = '<div style="text-align:center;padding:20px 0;color:#999;">预测失败</div>';
+                } else {
+                    const items = result.top2.map((item, idx) => {
+                        const medal = idx === 0 ? '🥇' : '🥈';
+                        const label = idx === 0 ? '首选' : '次选';
+                        const sums = item.topSums;
+                        const missText = item.miss > 0 ? `遗漏 ${item.miss} 期` : '近期热出';
+                        const scorePct = (item.score * 100).toFixed(0);
+                        const cls = idx === 0 ? 'predict-box primary' : 'predict-box';
+                        return `<div class="${cls}">
+                            <div class="rank">${medal} ${label} · 得分 ${scorePct}%</div>
+                            <div class="combo-item">${item.combo}</div>
+                            <div><span class="sum-tag">和值 ${sums[0]}</span><span class="sum-tag">和值 ${sums[1]}</span></div>
+                            <div style="font-size:11px;color:#888;margin-top:4px;">出现 ${item.freq} 次 · ${missText}</div>
+                        </div>`;
+                    });
+                    container.innerHTML = `<div class="grid">${items.join('')}</div>`;
+                }
             }
 
             // 开奖记录
             renderHistory();
             renderPredictHistory();
+            document.getElementById('dataStatus').textContent = total > 0 ? `✅ 已存 ${total} 期` : '⏳ 暂无数据';
         }
 
         function renderHistory() {
             const container = document.getElementById('historyContainer');
             if (!lotteryData || lotteryData.length === 0) {
-                container.innerHTML = '<div style="text-align:center;color:#999;padding:12px 0;">暂无数据，请检查API地址</div>';
+                container.innerHTML = '<div style="text-align:center;color:#999;padding:12px 0;">暂无数据，请点击下方按钮获取</div>';
                 return;
             }
             const sorted = [...lotteryData].sort((a,b) => parseInt(b.nbr) - parseInt(a.nbr));
@@ -248,42 +338,60 @@
             container.innerHTML = html;
         }
 
+        // ===== 核心操作：获取并保存最新一期 =====
+        async function fetchAndSave() {
+            debugLog('📡 正在获取最新数据...');
+            const item = await fetchLatest();
+            if (item) {
+                const added = addNewData(item);
+                if (added) {
+                    updatePredictRecords();
+                    generateNewPrediction();
+                }
+            } else {
+                debugLog('❌ 获取失败，请检查API地址');
+            }
+            render();
+            saveToStorage();
+        }
+
+        // ===== 清空数据 =====
+        function clearAll() {
+            if (!confirm('确定清空所有数据吗？')) return;
+            lotteryData = [];
+            predictionRecords = [];
+            saveToStorage();
+            render();
+            debugLog('🗑️ 已清空所有数据');
+        }
+
         // ===== 设置API地址 =====
         setApiBtn.addEventListener('click', () => {
             const newUrl = apiInput.value.trim();
             if (newUrl) {
                 API_URL = newUrl;
                 apiStatus.textContent = '✅ 已更新';
-                apiStatus.style.color = '#00B894';
                 debugLog(`🔧 API地址已更新: ${API_URL}`);
-                loadData().then(() => render());
             }
         });
 
-        // ===== 刷新 =====
-        document.getElementById('refreshBtn').addEventListener('click', async () => {
-            await loadData();
-            render();
-            debugLog('🔄 手动刷新完成');
-        });
+        refreshBtn.addEventListener('click', fetchAndSave);
+        clearBtn.addEventListener('click', clearAll);
 
         // ===== 启动 =====
-        async function init() {
-            // 从localStorage读取保存的API地址
+        function init() {
             const saved = localStorage.getItem('lottery_api_url');
             if (saved) {
                 API_URL = saved;
                 apiInput.value = saved;
-                apiStatus.textContent = '✅ 已加载';
             }
-            await loadData();
+            loadFromStorage();
             render();
-            debugLog('✅ 工具已启动');
-            // 每30秒自动刷新
-            setInterval(async () => {
-                await loadData();
-                render();
-            }, 30000);
+            debugLog(`✅ 工具已启动，当前数据 ${lotteryData.length} 条`);
+            // 自动获取最新一期
+            setTimeout(fetchAndSave, 500);
+            // 每30秒自动获取一次
+            setInterval(fetchAndSave, 30000);
         }
         init();
     </script>
